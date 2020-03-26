@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+import socket
+import re
+import sys
+
+bind_addr=("",9999)
+s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+s.bind(bind_addr)
+clients={}
+
+while True:
+    bdata,client_addr=s.recvfrom(1024)
+    data=bdata.decode("UTF-8")
+    # typ_spravy:obsah_spravy
+    #
+    # HELLO:nick
+    # ISAY:hlaska
+    m=re.match('([^:]*):(.*)',data)
+    if not m:
+        continue
+    typ_spravy=m.group(1)
+    obsah_spravy=m.group(2)
+    if typ_spravy=='HELLO':
+        clients[client_addr]=obsah_spravy
+        print("prihlasil sa",obsah_spravy,file=sys.stderr)
+    elif typ_spravy=='ISAY':
+        if client_addr in clients:
+            nick=clients[client_addr]
+            for addr in clients:
+                if addr!=client_addr:
+                    s.sendto(('SAYS:%s>%s' % (nick,obsah_spravy)).encode('UTF-8'),addr)
+
+    
+
