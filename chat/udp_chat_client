@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import socket
+import os
+import sys
+
+addr_server=(sys.argv[1],9999)
+s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+s.sendto(("HELLO: %s" % sys.argv[2]).encode("utf-8"),addr_server)
+
+if os.fork():
+    while True:
+        line=sys.stdin.readline()
+        s.sendto(("ISAY:%s" % line).encode("utf-8"),addr_server)
+else:
+    while True:
+        bdata,odkial=s.recvfrom(1024)
+        data=bdata.decode("utf-8")
+        if not data.startswith("SAYS:"):
+            continue
+        sys.stdout.write(data[5:])
+        sys.stdout.flush()
+
