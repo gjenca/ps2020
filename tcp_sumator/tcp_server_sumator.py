@@ -18,6 +18,7 @@ while True:
         while True:
             line=f.readline()
             if not line:
+                print("Odpojil sa klient",addr)
                 break
             line=line.strip()
             print("Klient poslal",">>>%s<<<" % line)
